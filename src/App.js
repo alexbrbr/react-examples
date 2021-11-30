@@ -7,24 +7,36 @@ function App() {
   return (
     <div className="app">
       {/* <MonContenuHtml></MonContenuHtml> */}
+      {/* <Templating></Templating> */}
       {/* <AvecDesProps
         maFonction={() => maVariable}
         monNombre={1.61803398875}
         uneChaine="trololololo lololo lololo"
-        unBoolean
+        unBoolean={false}
       ></AvecDesProps> */}
       {/* <AvecDesPropsCompliquées
         maFonction={() => maVariable}
         monTableau={[1, 2, 3, "A", "B", "C"]}
         monObjet={{ "cette syntaxte": "un peu barbare" }}
       ></AvecDesPropsCompliquées> */}
+
+      {/* C'est le bon moment pour inspecter et montrer les react dev tools */}
+      {/* <UnePropriétéNomméeChildren></UnePropriétéNomméeChildren>
+      <UnePropriétéNomméeChildren>
+        <p>Par exemple comme ça</p>
+      </UnePropriétéNomméeChildren>
+      <UnePropriétéNomméeChildren>
+        <p className="cool-color">Ou comme ça</p>
+      </UnePropriétéNomméeChildren> */}
+
       {/* <Condition></Condition> */}
       {/* <MaBoucle></MaBoucle> */}
       {/* <QuelquesEvenements></QuelquesEvenements> */}
       {/* <LeHelloWorld></LeHelloWorld> */}
       {/* <AvecDesObjetsEtDesArrays></AvecDesObjetsEtDesArrays> */}
       {/* <EffetDeBord></EffetDeBord> */}
-      {/* <UnPetitAppelHTTPPourLaRoute></UnPetitAppelHTTPPourLaRoute> */}
+      {/* <UnPetitAppelHTTP></UnPetitAppelHTTP> */}
+      <UnAutreAppelHTTPPourLaRoute></UnAutreAppelHTTPPourLaRoute>
     </div>
   );
 }
@@ -40,10 +52,10 @@ const MonContenuHtml = () => {
         <li>avec juste quelques spécificités à connaitre</li>
       </ul>
       <p className="explication">
-        Il faut utiliser <strong>className</strong> au lieu de{" "}
+        Il faut utiliser <strong>className</strong> au lieu de
         <strike>class</strike>, car c'est un mot clé du JS
       </p>
-      <div class="preference">
+      <div className="preference">
         <label for="react">Est ce que vous aimez React ?</label>
         <input type="checkbox" name="react" id="react" />
       </div>
@@ -53,6 +65,21 @@ const MonContenuHtml = () => {
     </main>
   );
 };
+
+function Templating() {
+  const nom = "Batman";
+
+  const monEspaceRéservé = "Robin";
+  return (
+    <p>
+      I'm {nom} <br />
+      <br />
+      <label>
+        What's your name ? <input type="text" placeholder={monEspaceRéservé} />
+      </label>
+    </p>
+  );
+}
 
 const AvecDesProps = ({
   monNombre,
@@ -82,13 +109,22 @@ const AvecDesPropsCompliquées = ({ maFonction, monTableau, monObjet }) => {
   );
 };
 
+const UnePropriétéNomméeChildren = (props) => {
+  return (
+    <section className="explication">
+      <p>Dans ce composant j'affiche mes children en dessous :</p>
+      {props.children}
+    </section>
+  );
+};
+
 function Condition() {
   const siMaCondition = (condition) => {
     if (condition) {
       return <p> là ça marche </p>;
     }
   };
-  const erreur = false;
+  const erreur = true;
   if (erreur) {
     return "oops une erreur";
   }
@@ -96,15 +132,14 @@ function Condition() {
   return (
     <div>
       test
-      {/* ça marche pass */}
-      {/* { {
+      {/* ça marche pas */}
+      {/* { 
         if(true) {
           return (<p>test avec ifs</p>);
         }
-      } } */}
+      } */}
       {true && <p>test avec short circuit</p>}
-      {true ? <p>test avec ternaire</p> : null}
-      {siMaCondition(true)}
+      {false ? <p>test avec ternaire</p> : null}
       {siMaCondition(false)}
     </div>
   );
@@ -115,22 +150,24 @@ function MaBoucle() {
 
   return (
     <ol>
-      {fibonacci.map((n) => (
-        <li key={n}>{n}</li>
+      {fibonacci.map((n, index) => (
+        <li key={index}>{n}</li>
       ))}
     </ol>
   );
 }
 
 function QuelquesEvenements() {
-  function tuCritiques() {
-    alert("mais tu cliques");
+  function tuCritiques(test, event) {
+    alert(event.target);
   }
   return (
     // un fragment React, car on a besoin d'un seul parent
     <>
       <div>
-        <button onClick={(event) => tuCritiques()}>Ne pas cliquer</button>
+        <button onClick={(event) => tuCritiques("test", event)}>
+          Ne pas cliquer
+        </button>
       </div>
       <hr />
       <div>
@@ -219,10 +256,10 @@ function EffetDeBord() {
   const [monCompteur, setMonCompteur] = useState(0);
 
   // setInterval(() => {
-  //   console.log(monCompteur)
-  //   console.log('oops')
-  //   setMonCompteur(monCompteur +1)
-  // }, 1000)
+  //   console.log(monCompteur);
+  //   console.log("oops");
+  //   setMonCompteur(monCompteur + 1);
+  // }, 1000);
 
   useEffect(() => {
     let id = setInterval(() => {
@@ -230,12 +267,41 @@ function EffetDeBord() {
       console.log("yes !!");
       setMonCompteur(monCompteur + 1);
     }, 1000);
-    return () => clearInterval(id);
+    return () => {
+      console.log("cleanup");
+      clearInterval(id);
+    };
   }, [monCompteur]);
   return <div>{monCompteur}</div>;
 }
 
-function UnPetitAppelHTTPPourLaRoute() {
+function UnPetitAppelHTTP() {
+  const [chat, setChat] = useState({});
+
+  function getCatPicture() {
+    fetch("https://thatcopy.pw/catapi/rest/", {
+      method: "GET",
+      headers: new Headers(),
+      mode: "cors",
+    })
+      .then((res) => res.json())
+      .then((cat) => {
+        setChat({ url: cat.url });
+        console.log(cat.url);
+      });
+  }
+
+  useEffect(() => {
+    getCatPicture();
+  }, []); // [] , donc une seule fois au chargement du composant
+
+  return (
+    <>
+      <img className="avatar" src={chat.url} />
+    </>
+  );
+}
+function UnAutreAppelHTTPPourLaRoute() {
   const [madness, setMadness] = useState(false);
   const [chats, setChats] = useState([]);
 
@@ -266,9 +332,9 @@ function UnPetitAppelHTTPPourLaRoute() {
 
   function getClassName() {
     if (madness) {
-      return 'avatar madness'
+      return "avatar madness";
     }
-    return 'avatar'
+    return "avatar";
   }
 
   return (
@@ -283,7 +349,7 @@ function UnPetitAppelHTTPPourLaRoute() {
       >
         Miaou 😼
       </button>
-      <hr/>
+      <hr />
       <button
         onClick={() => {
           setMadness(true);
